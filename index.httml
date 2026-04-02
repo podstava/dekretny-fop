@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Декретні ФОП 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Mulish:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f13;
+    --surface: #17171e;
+    --surface2: #1e1e28;
+    --border: #2a2a38;
+    --accent: #f0c040;
+    --accent2: #e07020;
+    --text: #e8e8f0;
+    --muted: #7070a0;
+    --green: #40d090;
+    --red: #f05050;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Mulish', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+
+  .noise {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 600px; margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(20px, 5vw, 28px);
+    font-weight: 800;
+    line-height: 1.2;
+    color: #fff;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .subtitle {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* SECTION */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  /* INPUTS */
+  .field {
+    margin-bottom: 14px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  label .hint {
+    font-weight: 400;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  input[type="number"], select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Mulish', sans-serif;
+    font-size: 15px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color .2s;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+  input[type="number"]:focus, select:focus {
+    border-color: var(--accent);
+  }
+
+  select option { background: var(--surface2); }
+
+  /* MONTHS TABLE */
+  .months-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .month-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    transition: border-color .2s;
+  }
+
+  .month-item:focus-within { border-color: var(--accent); }
+
+  .month-label {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .month-item input {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .month-item input:focus { border: none; box-shadow: none; }
+
+  /* TOGGLE */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    user-select: none;
+    transition: border-color .2s;
+  }
+
+  .toggle-row:hover { border-color: var(--muted); }
+
+  .toggle-row input[type="checkbox"] { display: none; }
+
+  .toggle-box {
+    width: 36px; height: 20px;
+    background: var(--border);
+    border-radius: 10px;
+    position: relative;
+    flex-shrink: 0;
+    transition: background .2s;
+  }
+
+  .toggle-box::after {
+    content: '';
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 14px; height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform .2s;
+  }
+
+  input[type="checkbox"]:checked ~ .toggle-box { background: var(--accent2); }
+  input[type="checkbox"]:checked ~ .toggle-box::after { transform: translateX(16px); }
+
+  .toggle-text { font-size: 13px; font-weight: 600; }
+
+  /* RESULTS */
+  .results {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    animation: fadeIn .3s ease;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .results-title {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+
+  .result-row:last-child { border-bottom: none; }
+
+  .result-label {
+    font-size: 13px;
+    color: var(--muted);
+    flex: 1;
+  }
+
+  .result-value {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    text-align: right;
+  }
+
+  .result-row.highlight .result-value {
+    font-size: 20px;
+    color: var(--accent);
+  }
+
+  .result-row.highlight .result-label {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* WARNING */
+  .warn {
+    background: rgba(240, 80, 80, .08);
+    border: 1px solid rgba(240, 80, 80, .3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--red);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  .info-box {
+    background: rgba(64, 208, 144, .07);
+    border: 1px solid rgba(64, 208, 144, .2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--green);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* BTN */
+  .calc-btn {
+    width: 100%;
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    padding: 14px;
+    cursor: pointer;
+    transition: opacity .2s, transform .1s;
+    margin-bottom: 16px;
+  }
+
+  .calc-btn:hover { opacity: .9; }
+  .calc-btn:active { transform: scale(.98); }
+
+  .footer-note {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .hidden { display: none; }
+
+  .tooltip-anchor {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px; height: 18px;
+    background: var(--accent);
+    color: #000;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: 6px;
+    vertical-align: middle;
+    user-select: none;
+    flex-shrink: 0;
+    transition: opacity .2s;
+  }
+  .tooltip-anchor:hover { opacity: .8; }
+
+  .tooltip-box {
+    margin-top: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.7;
+    animation: fadeIn .2s ease;
+  }
+  .tooltip-box strong { color: var(--accent); }
+  .tooltip-box b { color: var(--text); }
+
+  /* Divider */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 14px 0;
+  }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="container">
+
+  <header>
+    <div class="badge">ФОП · 2026</div>
+    <h1>Калькулятор<br><span>декретних виплат</span></h1>
+    <p class="subtitle">Допомога по вагітності та пологах від ПФУ.<br>Розрахунок суми для заяви-розрахунку.</p>
+  </header>
+
+  <!-- STEP 1: Base params -->
+  <div class="section">
+    <div class="section-title">Параметри декрету</div>
+
+    <div class="field">
+      <label>Тривалість відпустки <span class="hint">— обери варіант</span></label>
+      <select id="duration">
+        <option value="126">126 днів — стандарт (70 до + 56 після)</option>
+        <option value="140">140 днів — ускладнені пологи</option>
+        <option value="180">180 днів — двійня / трійня</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="stazh_months">Страховий стаж за останні 12 міс. <span class="hint">— скільки місяців сплачено ЄСВ</span></label>
+      <input type="number" id="stazh_months" min="0" max="12" value="12" placeholder="від 0 до 12">
+    </div>
+  </div>
+
+  <!-- STEP 2: Income -->
+  <div class="section">
+    <div class="section-title">База нарахування ЄСВ (12 місяців)</div>
+
+    <div class="field">
+      <label>Режим введення</label>
+      <select id="input_mode" onchange="toggleMode()">
+        <option value="single">Однакова сума щомісяця</option>
+        <option value="detailed">Окремо по кожному місяцю</option>
+      </select>
+    </div>
+
+    <div id="single_mode" class="field">
+      <label for="monthly_base">
+        Місячна база ЄСВ
+        <span class="hint"> — сума з якої нараховувався ЄСВ, грн</span>
+        <span class="tooltip-anchor" onclick="toggleTooltip()">&#9432;</span>
+      </label>
+      <input type="number" id="monthly_base" min="8647" value="8647" placeholder="мін. 8 647 грн">
+      <div class="tooltip-box hidden" id="tooltip_box">
+        <strong>Що таке база ЄСВ?</strong><br><br>
+        Це <em>не</em> сума самого платежу ЄСВ, а сума доходу з якої він розраховується.<br><br>
+        <b>Єдиний податок (1–3 група):</b><br>
+        Ти сам обираєш базу — від мінімалки (8 647 грн) до 20 мінзарплат (172 940 грн). Більшість платять від мінімалки → база = 8 647 грн.<br><br>
+        <b>Загальна система:</b><br>
+        База = чистий дохід (виручка − витрати) за місяць.<br><br>
+        <b>Як перевірити свою базу:</b><br>
+        Дивись довідкову декларацію (Додаток 1 до декларації ЄП) або квитанції на сплату ЄСВ — там вказана саме база.<br><br>
+        <b>Приклад:</b> сплатив 1 902 грн ЄСВ → база = 1 902 ÷ 22% = 8 647 грн.
+      </div>
+    </div>
+
+    <div id="detailed_mode" class="hidden">
+      <div class="months-grid" id="months_grid"></div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Special cases -->
+  <div class="section">
+    <div class="section-title">Додаткові параметри</div>
+
+    <label class="toggle-row" style="margin-bottom:10px">
+      <input type="checkbox" id="no_stazh_limit">
+      <span class="toggle-box"></span>
+      <span class="toggle-text">Стаж менше 6 місяців (обмеження виплат)</span>
+    </label>
+  </div>
+
+  <button class="calc-btn" onclick="calculate()">⬛ Розрахувати суму</button>
+
+  <!-- RESULTS -->
+  <div class="results hidden" id="results">
+    <div class="results-title">Результат розрахунку</div>
+
+    <div class="result-row">
+      <span class="result-label">Розрахунковий период</span>
+      <span class="result-value" id="r_period">—</span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Сума ЄСВ-бази за рік</span>
+      <span class="result-value" id="r_esv_base">—</span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Середньоденна допомога</span>
+      <span class="result-value" id="r_daily">—</span>
+    </div>
+    <div class="result-row">
+      <span class="result-label">Застосований ліміт</span>
+      <span class="result-value" id="r_limit">—</span>
+    </div>
+    <div class="divider"></div>
+    <div class="result-row highlight">
+      <span class="result-label">💰 Загальна сума декретних</span>
+      <span class="result-value" id="r_total">—</span>
+    </div>
+
+    <div id="warn_box" class="warn hidden"></div>
+    <div id="info_box" class="info-box hidden"></div>
+  </div>
+
+  <p class="footer-note">
+    Мінзарплата 2026: 8 647 грн · Макс. база ЄСВ: 172 940 грн<br>
+    Розрахунок за Законом №1105 та Порядком №1266.<br>
+    Для точних даних — звертайся до бухгалтера або ПФУ.
+  </p>
+
+</div>
+
+<script>
+const MIN_SALARY = 8647;
+const MAX_BASE = 172940; // 20 × мінзарплата
+const CALC_DAYS = 365;
+
+// Generate months grid
+(function buildMonths() {
+  const grid = document.getElementById('months_grid');
+  const months = ['Міс 1','Міс 2','Міс 3','Міс 4','Міс 5','Міс 6',
+                  'Міс 7','Міс 8','Міс 9','Міс 10','Міс 11','Міс 12'];
+  months.forEach((m, i) => {
+    grid.innerHTML += `
+      <div class="month-item">
+        <span class="month-label">${m}</span>
+        <input type="number" class="month-inp" id="m${i}" value="${MIN_SALARY}" min="0" placeholder="0">
+      </div>`;
+  });
+})();
+
+function toggleTooltip() {
+  document.getElementById('tooltip_box').classList.toggle('hidden');
+}
+
+function toggleMode() {
+  const mode = document.getElementById('input_mode').value;
+  document.getElementById('single_mode').classList.toggle('hidden', mode !== 'single');
+  document.getElementById('detailed_mode').classList.toggle('hidden', mode !== 'detailed');
+}
+
+function fmt(n) {
+  return n.toLocaleString('uk-UA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' грн';
+}
+
+function calculate() {
+  const duration = parseInt(document.getElementById('duration').value);
+  const stazh = parseInt(document.getElementById('stazh_months').value) || 0;
+  const mode = document.getElementById('input_mode').value;
+  const noStazhLimit = document.getElementById('no_stazh_limit').checked;
+
+  // Collect income base
+  let totalBase = 0;
+  let activePeriods = 0;
+
+  if (mode === 'single') {
+    const mb = parseFloat(document.getElementById('monthly_base').value) || 0;
+    const usedMonths = Math.min(stazh, 12);
+    totalBase = mb * usedMonths;
+    activePeriods = usedMonths;
+  } else {
+    for (let i = 0; i < 12; i++) {
+      const v = parseFloat(document.getElementById(`m${i}`).value) || 0;
+      if (v > 0) { totalBase += v; activePeriods++; }
+    }
+  }
+
+  // Cap per month (max base)
+  if (mode === 'single') {
+    const mb = parseFloat(document.getElementById('monthly_base').value) || 0;
+    if (mb > MAX_BASE) {
+      totalBase = MAX_BASE * Math.min(stazh, 12);
+    }
+  }
+
+  // Daily rate
+  let dailyRate = totalBase / CALC_DAYS;
+
+  // Min daily = MIN_SALARY / 30.44
+  const minDaily = MIN_SALARY / 30.44;
+  // Max daily = MAX_BASE / 30.44
+  const maxDaily = MAX_BASE / 30.44;
+
+  let limitLabel = 'Без обмежень';
+  let warnText = '';
+  let infoText = '';
+
+  // Apply min
+  if (dailyRate < minDaily) {
+    dailyRate = minDaily;
+    limitLabel = `Мінімум (${fmt(minDaily)}/день)`;
+    warnText = `База ЄСВ занадто мала — застосовано мінімальний розмір допомоги (з мінзарплати ${MIN_SALARY.toLocaleString('uk-UA')} грн).`;
+  }
+
+  // Apply max
+  if (dailyRate > maxDaily) {
+    dailyRate = maxDaily;
+    limitLabel = `Максимум (${fmt(maxDaily)}/день)`;
+    infoText = `Ваша база перевищує максимальну (172 940 грн/міс). Застосовано верхній ліміт.`;
+  }
+
+  // Якщо стаж < 6 місяців — обмеження до 10% від мінзарплати на день
+  if (noStazhLimit || stazh < 6) {
+    const limitedDaily = MIN_SALARY / 30.44 * 0.1 * 10; // = MIN_SALARY/30.44, за законом обмеження = від мінзарплати
+    // Фактично: при стажі < 6 міс виплата = від мінзарплати
+    dailyRate = minDaily;
+    limitLabel = `Обмеження через стаж < 6 міс`;
+    warnText = `Страховий стаж менше 6 місяців — виплата розраховується від мінімальної зарплати.`;
+  }
+
+  const total = dailyRate * duration;
+
+  // Show results
+  document.getElementById('r_period').textContent = `${activePeriods || Math.min(stazh,12)} міс. / 365 днів`;
+  document.getElementById('r_esv_base').textContent = fmt(totalBase);
+  document.getElementById('r_daily').textContent = fmt(dailyRate) + '/день';
+  document.getElementById('r_limit').textContent = limitLabel;
+  document.getElementById('r_total').textContent = fmt(total);
+
+  const warnEl = document.getElementById('warn_box');
+  const infoEl = document.getElementById('info_box');
+  warnEl.classList.toggle('hidden', !warnText);
+  if (warnText) warnEl.textContent = '⚠️ ' + warnText;
+  infoEl.classList.toggle('hidden', !infoText);
+  if (infoText) infoEl.textContent = 'ℹ️ ' + infoText;
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+</body>
+</html>
